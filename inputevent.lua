@@ -141,7 +141,7 @@ function InputEvent:new(key, on)
     Instance.on = on or {}
     Instance.queue = {}
     Instance.duration = mp.get_property_number("input-doubleclick-time", 300)
-    Instance.queue_max = 0
+    Instance.queue_max = { length = 0 }
 
     for _, event in ipairs(event_pattern) do
         if Instance.on[event.to] and event.length > 1 then
