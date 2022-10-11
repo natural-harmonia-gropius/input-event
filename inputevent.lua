@@ -61,7 +61,7 @@ function command_invert(command)
         if table.has(commands, command) then
             invert = invert .. prefix .. " set " .. property .. " " .. value .. semi
         else
-            mp.msg.error("\"" .. trimed .. "\" doesn't support auto restore.")
+            mp.msg.warn("\"" .. trimed .. "\" doesn't support auto restore.")
         end
     end
     return invert
