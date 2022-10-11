@@ -175,7 +175,8 @@ function InputEvent:handler(event)
     end
 
     if event == "press" then
-        self:emit("click")
+        self:handler("down")
+        self:handler("up")
         return
     end
 
