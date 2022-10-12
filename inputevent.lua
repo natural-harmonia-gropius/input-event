@@ -1,3 +1,6 @@
+-- InputEvent
+-- https://github.com/Natural-Harmonia-Gropius/InputEvent
+
 local utils = require("mp.utils")
 
 local bind_map = {}
