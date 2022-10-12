@@ -163,9 +163,18 @@ function InputEvent:emit(event)
     end
 
     local cmd = self.on[event]
-    if cmd and cmd ~= "" then
-        command(cmd)
+    if not cmd or cmd == "" then
+        return
     end
+
+    local expand = mp.command_native({'expand-text', cmd})
+    if #cmd:split(";") == #expand:split(";") then
+        cmd = mp.command_native({'expand-text', cmd})
+    else
+        mp.msg.warn("Unsafe property-expansion detected.")
+    end
+
+    command(cmd)
 end
 
 function InputEvent:handler(event)
