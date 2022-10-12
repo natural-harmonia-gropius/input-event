@@ -169,14 +169,22 @@ function InputEvent:emit(event)
 end
 
 function InputEvent:handler(event)
-    if event == "repeat" then
-        self:emit(event)
-        return
-    end
-
     if event == "press" then
         self:handler("down")
         self:handler("up")
+        return
+    end
+
+    if event == "down" then
+        self.down_at = now()
+    end
+
+    if event == "repeat" then
+        if now() - self.down_at < self.duration then
+            return
+        end
+
+        self:emit(event)
         return
     end
 
