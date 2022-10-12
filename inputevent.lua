@@ -163,9 +163,11 @@ function InputEvent:emit(event)
     end
 
     local cmd = self.on[event]
-    if cmd and cmd ~= "" then
-        command(cmd)
+    if not cmd or cmd == "" then
+        return
     end
+
+    command(cmd)
 end
 
 function InputEvent:handler(event)
