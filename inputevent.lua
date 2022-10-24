@@ -266,6 +266,10 @@ function bind(key, on)
     bind_map[key]:bind()
 end
 
+function unbind(key)
+    bind_map[key]:unbind()
+end
+
 function bind_from_input_conf()
     local input_conf = mp.get_property_native("input-conf")
     local input_conf_path = mp.command_native({ "expand-path", input_conf == "" and "~~/input.conf" or input_conf })
@@ -295,10 +299,6 @@ function bind_from_input_conf()
     for key, on in pairs(parsed) do
         bind(key, on)
     end
-end
-
-function unbind(key)
-    bind_map[key]:unbind()
 end
 
 mp.observe_property("input-doubleclick-time", "native", function(_, new_duration)
