@@ -302,8 +302,8 @@ function bind_from_input_conf()
 end
 
 mp.observe_property("input-doubleclick-time", "native", function(_, new_duration)
-    for _, on in pairs(bind_map) do
-        on:rebind({ duration = new_duration })
+    for _, binding in pairs(bind_map) do
+        binding:rebind({ duration = new_duration })
     end
 end)
 
