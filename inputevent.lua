@@ -191,14 +191,10 @@ function InputEvent:handler(event)
     end
 
     if event == "down" then
-        self.down_at = now()
+        self.on["repeat-ignore"] = now()
     end
 
     if event == "repeat" then
-        if now() - self.down_at < self.duration then
-            return
-        end
-
         self:emit(event)
         return
     end
