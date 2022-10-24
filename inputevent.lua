@@ -318,6 +318,14 @@ mp.observe_property("focused", "native", function(_, focused)
     binding.on["click-ignore"] = now() + 100
 end)
 
+mp.observe_property("geometry", "native", function(_, geometry)
+    print(geometry)
+    local binding = bind_map["MBTN_LEFT"]
+    if not binding then return end
+    print(binding.queue[#binding.queue])
+    binding.queue = table.filter(binding.queue, function(i) return i ~= #binding.queue end)
+end)
+
 mp.register_script_message("bind", bind)
 mp.register_script_message("unbind", unbind)
 
