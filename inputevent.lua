@@ -157,6 +157,15 @@ function InputEvent:new(key, on)
 end
 
 function InputEvent:emit(event)
+    local ignore = event .. "-ignore"
+    if self.on[ignore] then
+        if now() - self.on[ignore] < self.duration then
+            return
+        end
+
+        self.on[ignore] = nil
+    end
+
     if event == "press" and self.on["release"] == "ignore" then
         self.on["release-auto"] = command_invert(self.on["press"])
     end
