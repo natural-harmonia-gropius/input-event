@@ -179,6 +179,13 @@ function InputEvent:emit(event)
         return
     end
 
+    local expand = mp.command_native({'expand-text', cmd})
+    if #cmd:split(";") == #expand:split(";") then
+        cmd = mp.command_native({'expand-text', cmd})
+    else
+        mp.msg.warn("Unsafe property-expansion: " .. cmd)
+    end
+
     command(cmd)
 end
 
