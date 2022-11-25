@@ -286,14 +286,12 @@ function unbind(key)
 end
 
 function bind_from_conf(path)
-    path = mp.command_native({ "expand-path", path })
-
     local meta, meta_error = utils.file_info(path)
     if not meta or not meta.is_file then
-        return
+        return {}
     end
 
-    local parsed = {}
+    local kv = {}
     for line in io.lines(path) do
         line = line:trim()
         if line ~= "" then
@@ -304,50 +302,39 @@ function bind_from_conf(path)
                 if events and #events > 0 then
                     local event = events[1]:match("^@(.*)"):trim()
                     if event and event ~= "" then
-                        if parsed[key] == nil then
-                            parsed[key] = {}
+                        if kv[key] == nil then
+                            kv[key] = {}
                         end
-                        parsed[key][event] = cmd
+                        kv[key][event] = cmd
                     end
                 end
             end
         end
     end
 
-    for key, on in pairs(parsed) do
-        unbind(key)
-        bind(key, on)
+    local parsed = {}
+    for key, on in pairs(kv) do
+        table.insert(parsed, { key = key, on = on })
     end
+
+    return parsed
 end
 
 function bind_from_json(path)
-    path = mp.command_native({ "expand-path", path })
-
     local meta, meta_error = utils.file_info(path)
     if not meta or not meta.is_file then
-        return
+        return {}
     end
 
     local json_file = io.open(path, "r")
     if not json_file then
-        return
+        return {}
     end
     local json = json_file:read("a")
     json_file:close()
 
     local parsed = utils.parse_json(json)
-    if #parsed == 0 then
-        return
-    end
-
-    for _, v in ipairs(parsed) do
-        if v.key and v.on then
-            unbind(v.key)
-            bind(v.key, v.on)
-        else
-            mp.msg.error("Unvalidated json: " .. path)
-        end
-    end
+    return parsed
 end
 
 function bind_from_options_configs()
@@ -359,13 +346,26 @@ function bind_from_options_configs()
                 path = "~~/input.conf"
             end
         end
+        path = mp.command_native({ "expand-path", path })
 
+        local parsed = {}
         local splited_filename = path:split(".")
         local extension = splited_filename[#splited_filename]
         if extension == "conf" then
-            bind_from_conf(path)
+            parsed = bind_from_conf(path)
         elseif extension == "json" then
-            bind_from_json(path)
+            parsed = bind_from_json(path)
+        end
+
+        if #parsed ~= 0 then
+            for _, v in ipairs(parsed) do
+                if v.key and v.on then
+                    unbind(v.key)
+                    bind(v.key, v.on)
+                else
+                    mp.msg.error("Invalidated config: " .. path)
+                end
+            end
         end
     end
 end
