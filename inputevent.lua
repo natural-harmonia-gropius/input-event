@@ -320,6 +320,56 @@ function bind_from_conf(path)
     end
 end
 
+function bind_from_json(path)
+    path = mp.command_native({ "expand-path", path })
+
+    local meta, meta_error = utils.file_info(path)
+    if not meta or not meta.is_file then
+        return
+    end
+
+    local json_file = io.open(path, "r")
+    if not json_file then
+        return
+    end
+    local json = json_file:read("a")
+    json_file:close()
+
+    local parsed = utils.parse_json(json)
+    if #parsed == 0 then
+        return
+    end
+
+    for _, v in ipairs(parsed) do
+        if v.key and v.on then
+            unbind(v.key)
+            bind(v.key, v.on)
+        else
+            mp.msg.error("Unvalidated json: " .. path)
+        end
+    end
+end
+
+function bind_from_options_configs()
+    for index, value in ipairs(o.configs:split(",")) do
+        local path = value:trim()
+        if path == "input.conf" then
+            local input_conf = mp.get_property_native("input-conf")
+            if input_conf == "" then
+                path = "~~/input.conf"
+            end
+        end
+
+        local splited_filename = path:split(".")
+        local extension = splited_filename[#splited_filename]
+        if extension == "conf" then
+            bind_from_conf(path)
+        elseif extension == "json" then
+            bind_from_json(path)
+        end
+    end
+end
+
 mp.observe_property("input-doubleclick-time", "native", function(_, new_duration)
     for _, binding in pairs(bind_map) do
         binding:rebind({ duration = new_duration })
@@ -335,17 +385,4 @@ end)
 mp.register_script_message("bind", bind)
 mp.register_script_message("unbind", unbind)
 
-for index, value in ipairs(o.configs:split(",")) do
-    local path = value:trim()
-    if path == "input.conf" then
-        local input_conf = mp.get_property_native("input-conf")
-        if input_conf == "" then
-            path = "~~/input.conf"
-        end
-    end
-
-    local t = path:split(".")
-    if t[#t] == "conf" then
-        bind_from_conf(path)
-    end
-end
+bind_from_options_configs()
