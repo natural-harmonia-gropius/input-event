@@ -2,6 +2,12 @@
 -- https://github.com/Natural-Harmonia-Gropius/InputEvent
 
 local utils = require("mp.utils")
+local options = require("mp.options")
+
+local o = {
+    configs = "input.conf",
+}
+options.read_options(o)
 
 local bind_map = {}
 
@@ -272,17 +278,23 @@ function bind(key, on)
 end
 
 function unbind(key)
-    bind_map[key]:unbind()
+    local binding = bind_map[key]
+    if binding then
+        binding:unbind()
+        bind_map[key] = nil
+    end
 end
 
-function bind_from_input_conf()
-    local input_conf = mp.get_property_native("input-conf")
-    local input_conf_path = mp.command_native({ "expand-path", input_conf == "" and "~~/input.conf" or input_conf })
-    local input_conf_meta, meta_error = utils.file_info(input_conf_path)
-    if not input_conf_meta or not input_conf_meta.is_file then return end -- File doesn"t exist
+function bind_from_conf(path)
+    path = mp.command_native({ "expand-path", path })
+
+    local meta, meta_error = utils.file_info(path)
+    if not meta or not meta.is_file then
+        return
+    end
 
     local parsed = {}
-    for line in io.lines(input_conf_path) do
+    for line in io.lines(path) do
         line = line:trim()
         if line ~= "" then
             local key, cmd, comment = line:match("%s*([%S]+)%s+(.-)%s+#%s*(.-)%s*$")
@@ -301,7 +313,9 @@ function bind_from_input_conf()
             end
         end
     end
+
     for key, on in pairs(parsed) do
+        unbind(key)
         bind(key, on)
     end
 end
@@ -321,4 +335,17 @@ end)
 mp.register_script_message("bind", bind)
 mp.register_script_message("unbind", unbind)
 
-bind_from_input_conf()
+for index, value in ipairs(o.configs:split(",")) do
+    local path = value:trim()
+    if path == "input.conf" then
+        local input_conf = mp.get_property_native("input-conf")
+        if input_conf == "" then
+            path = "~~/input.conf"
+        end
+    end
+
+    local t = path:split(".")
+    if t[#t] == "conf" then
+        bind_from_conf(path)
+    end
+end
