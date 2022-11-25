@@ -7,7 +7,6 @@ local options = require("mp.options")
 local o = {
     configs = "input.conf",
 }
-options.read_options(o)
 
 local bind_map = {}
 
@@ -370,6 +369,15 @@ function bind_from_options_configs()
     end
 end
 
+function on_options_configs_update(list)
+    if(list.configs) then
+        for key, value in pairs(bind_map) do
+            unbind(key)
+        end
+        bind_from_options_configs()
+    end
+end
+
 mp.observe_property("input-doubleclick-time", "native", function(_, new_duration)
     for _, binding in pairs(bind_map) do
         binding:rebind({ duration = new_duration })
@@ -384,5 +392,7 @@ end)
 
 mp.register_script_message("bind", bind)
 mp.register_script_message("unbind", unbind)
+
+options.read_options(o, _, on_options_configs_update)
 
 bind_from_options_configs()
