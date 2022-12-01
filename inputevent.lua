@@ -300,9 +300,9 @@ function bind_from_conf(path)
     local kv = {}
     for line in io.lines(path) do
         line = line:trim()
-        if line ~= "" then
+        if line ~= "" and line:sub(1, 1) ~= "#" then
             local key, cmd, comment = line:match("%s*([%S]+)%s+(.-)%s+#%s*(.-)%s*$")
-            if comment and key:sub(1, 1) ~= "#" then
+            if comment then
                 local comments = comment:split("#")
                 local events = table.filter(comments, function(i, v) return v:match("^@") end)
                 if events and #events > 0 then
