@@ -145,7 +145,6 @@ function InputEvent:new(key, on)
     self.__index = self;
 
     Instance.key = key
-    Instance.name = "@" .. key
     Instance.on = table.assign({ click = "" }, on)
     Instance.queue = {}
     Instance.queue_max = { length = 0 }
@@ -251,11 +250,11 @@ end
 
 function InputEvent:bind()
     self.exec_debounced = debounce(function() self:exec() end, self.duration)
-    mp.add_forced_key_binding(self.key, self.name, function(e) self:handler(e.event) end, { complex = true })
+    mp.add_forced_key_binding(self.key, self.key, function(e) self:handler(e.event) end, { complex = true })
 end
 
 function InputEvent:unbind()
-    mp.remove_key_binding(self.name)
+    mp.remove_key_binding(self.key)
 end
 
 function InputEvent:rebind(diff)
