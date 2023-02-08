@@ -13,20 +13,13 @@ Now the supported events are:
 
 Compound events e.g. `click` will be emitted as soon as possible to get lowest latency.
 
-## Installation
+## How to use?
 
-1. Put `inputevent.lua` into ~~/scripts.
-2. Modify your `input.conf`, See [**usage**](https://github.com/Natural-Harmonia-Gropius/InputEvent#usage) to get common uses.
+1. Put [inputevent.lua](https://github.com/natural-harmonia-gropius/input-event/raw/master/inputevent.lua) into `~~/scripts`
+2. Modify your `input.conf`, See [Examples](https://github.com/natural-harmonia-gropius/input-event#Examples) to get common uses
+3. (Recommended) Append `input-doubleclick-time=200` to your `mpv.conf`, if you feel unresponsive due to clicking
 
-- Suggestion: If you feel unresponsive due to clicking, add the following to your `mpv.conf`
-
-  ```ini
-  input-doubleclick-time=200
-  ```
-
-## Usage
-
-If anyone has an idea, welcome to open a issue or make a PR.
+## Examples
 
 ### Click to pause, Double click to fullscreen
 
@@ -56,13 +49,10 @@ SPACE           ignore                              #@release
 ```
 
 When you press the `SPACE` the playback speed will be 4x faster.  
-When you release it, changes will [automatically restore](https://github.com/Natural-Harmonia-Gropius/InputEvent#how-does-the-auto-restore-on-release-works).
+When you release it, changes will [automatically restore](https://github.com/natural-harmonia-gropius/input-event#how-does-the-auto-restore-on-release-works).
 
 Of course, you can bind it to the right arrow key by simply replacing `SPACE` to `RIGHT`.  
 I just personally prefer the space.
-
-This was requested in [hooke007/MPV_lazy#183](https://github.com/hooke007/MPV_lazy/discussions/183).  
-At that time I created [pressaction.lua](https://github.com/Natural-Harmonia-Gropius/mpv_config/blob/990a19fcd7ca91ff5f9cdfa01184c8d25a7932e8/scripts/pressaction.lua), which is now deprecated because this is the perfect replacement.
 
 [po5/evafast](https://github.com/po5/evafast) also does this and is more powerful.  
 if you want to use it while having custom keybind, this is an example of integrating it.
@@ -141,30 +131,31 @@ PLAYPAUSE       playlist-next                       #@double_click
 
 Some headphones have a `PLAYPAUSE` button, click to play/pause and double click to play the next, just like some smart headphones.
 
-[Press (the latter if key up/down can't be tracked)](https://mpv.io/manual/master/#lua-scripting-event) will be treated as a click.  
-I don't know much about this, maybe there are keys that can `repeat`.
+[Press (the latter if key up/down can't be tracked)](https://mpv.io/manual/master/#lua-scripting-event) will be treated as a click.
 
-### Ideas that are currently impossible
+## Ideas that are currently impossible
 
-#### Press LEFT to rewind
+### Press LEFT to rewind
 
 Unfortunately, mpv doesn't support rewind now.
 
-#### Press MBTN_RIGHT to start mouse gesture, Release to execute the action
+### Press MBTN_RIGHT to start mouse gesture, Release to execute the action
 
-At some point in the future, maybe someone has already done it.  
-See [christoph-heinrich/pointer_event#1](https://github.com/christoph-heinrich/pointer_event/issues/1)
+Will not be implemented here, Gesture is a higher level feature.  
+I would prefer this script to be an infrastructure, A better idea is to call other scripts.  
+[omeryagmurlu/mpv-gestures](https://github.com/omeryagmurlu/mpv-gestures)  
+[christoph-heinrich/mpv-touch-gestures](https://github.com/christoph-heinrich/mpv-touch-gestures)
 
 ## How does the auto-restore on release works?
+
+Writing the ignore command in the release event will enable automatic restore.  
+What if you just need to **ignore** the release? Just don't write the line of release event.
 
 ```ini
 KEY             ignore                              #@release
 ```
 
-Writing the ignore command in the release event will enable automatic restore.  
-What if you just need to **ignore** the release? Just don't write the line of release event.
-
-In this example [press-to-speedup-release-to-restore](https://github.com/Natural-Harmonia-Gropius/InputEvent#press-to-speedup-release-to-restore).  
+In this example [press-to-speedup-release-to-restore](https://github.com/natural-harmonia-gropius/input-event#press-to-speedup-release-to-restore).  
 If you playing with `speed=0.5; pause=yes`, Press will change them to `speed=4; pause=no`.  
 When released, they will restore to `speed=0.5; pause=yes`.
 
@@ -184,7 +175,89 @@ SPACE           set speed 4; show-text 1            #@press
 SPACE           ignore                              #@release
 ```
 
-In this example, the speed will be restored, show-text cannot and will not be restored.
+In the above example, the speed will be restored, show-text cannot and will not be restored.
+
+## The native press (repeat) doesn't work?
+
+Writing the ignore command in the repeat event will bring back the original behavior of repeat.
+
+```ini
+UP              add volume 1                        #@click
+UP              ignore                              #@repeat
+```
+
+In the above example, if you don't write `UP ignore #@repeat`, you'll have to press frequently, which is too tiring.
+
+## Left-click will be ignored for a short time after the focus window
+
+Because of the unexpected pause/play when switching windows, after I tested this behavior there is no side effect, please feedback if you encounter any problems.
+
+## Support for multiple configuration files
+
+You can spread out the configuration files into multiple ones like this and load them together at runtime.
+
+```ini
+script-opts-add=inputevent-configs="input.conf,~~/test.conf,~~/test.json"
+```
+
+input.conf
+
+```ini
+SPACE           cycle pause                         #@click
+SPACE           set speed  2.0                      #@press
+SPACE           set speed  1.0                      #@release
+```
+
+test.conf
+
+```ini
+SPACE           set speed  0.5                      #@press
+SPACE           set speed  1.0                      #@release
+```
+
+test.json
+
+```json
+[
+  {
+    "key": "SPACE",
+    "on": {
+      "click": "show-text click",
+      "double_click": "show-text double-click",
+      "penta_click": "show-text penta-click",
+      "press": "show-text pressed",
+      "quatra_click": "show-text quatra-click",
+      "release": "show-text released",
+      "repeat": "show-text repeat",
+      "triple_click": "show-text triple-click"
+    }
+  }
+]
+```
+
+Also, it supports hot-reloading.
+
+```ini
+[fullscreen]
+profile-cond=fullscreen
+profile-restore=copy-equal
+script-opts-add=inputevent-configs="input.conf,~~/test.json"
+```
+
+## Extended support for property-expansion
+
+- **Dangerous, use with caution**
+
+The original property-expansion can only work for strings, but now supports inserting in all positions of the command.
+
+This is a example of a smoother speedup.
+
+```ini
+SPACE           cycle pause                                                                 #@click
+SPACE           no-osd set speed 1; set pause no                                            #@press
+SPACE           ignore                                                                      #@release
+SPACE           no-osd add speed ${?speed==4.00:0}${!speed==4.00:0.1}; show-text ${speed}   #@repeat
+```
 
 ## How to integrate with other scripts?
 

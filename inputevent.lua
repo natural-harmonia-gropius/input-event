@@ -1,5 +1,5 @@
 -- InputEvent
--- https://github.com/Natural-Harmonia-Gropius/InputEvent
+-- https://github.com/natural-harmonia-gropius/input-event
 
 local utils = require("mp.utils")
 local options = require("mp.options")
