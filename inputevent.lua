@@ -65,7 +65,7 @@ function command_invert(command)
         local property = ""
 
         for index, value in ipairs(subs) do
-            if table.has(prefixes, value) then
+            if command == "" and table.has(prefixes, value) then
                 prefix = prefix .. value .. " "
             elseif command == "" then
                 command = value
