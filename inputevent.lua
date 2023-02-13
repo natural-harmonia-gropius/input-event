@@ -27,65 +27,6 @@ local prefixes = { "osd-auto", "no-osd", "osd-bar", "osd-msg", "osd-msg-bar", "r
 -- https://mpv.io/manual/master/#list-of-input-commands
 local commands = { "set", "cycle", "add", "multiply" }
 
-local function debounce(func, wait)
-    func = type(func) == "function" and func or function() end
-    wait = type(wait) == "number" and wait / 1000 or 0
-
-    local timer = nil
-    local timer_end = function()
-        timer:kill()
-        timer = nil
-        func()
-    end
-
-    return function()
-        if timer then
-            timer:kill()
-        end
-        timer = mp.add_timeout(wait, timer_end)
-    end
-end
-
-function now()
-    return mp.get_time() * 1000
-end
-
-function command(command)
-    return mp.command(command)
-end
-
-function command_invert(command)
-    local invert = ""
-    local command_list = command:split(";")
-    for i, v in ipairs(command_list) do
-        local trimed = v:trim()
-        local subs = trimed:split("%s*")
-        local prefix = ""
-        local command = ""
-        local property = ""
-
-        for index, value in ipairs(subs) do
-            if command == "" and table.has(prefixes, value) then
-                prefix = prefix .. value .. " "
-            elseif command == "" then
-                command = value
-            elseif property == "" then
-                property = value
-            end
-        end
-
-        local value = mp.get_property(property)
-        local semi = i == #command_list and "" or ";"
-
-        if table.has(commands, command) then
-            invert = invert .. prefix .. "set " .. property .. " " .. value .. semi
-        else
-            mp.msg.warn("\"" .. trimed .. "\" doesn't support auto restore.")
-        end
-    end
-    return invert
-end
-
 function table:push(element)
     self[#self + 1] = element
     return self
@@ -146,6 +87,65 @@ function string:split(separator)
     local pattern = string.format("([^%s]+)", separator)
     local copy = self:gsub(pattern, function(c) fields[#fields + 1] = c end)
     return fields
+end
+
+function debounce(func, wait)
+    func = type(func) == "function" and func or function() end
+    wait = type(wait) == "number" and wait / 1000 or 0
+
+    local timer = nil
+    local timer_end = function()
+        timer:kill()
+        timer = nil
+        func()
+    end
+
+    return function()
+        if timer then
+            timer:kill()
+        end
+        timer = mp.add_timeout(wait, timer_end)
+    end
+end
+
+function now()
+    return mp.get_time() * 1000
+end
+
+function command(command)
+    return mp.command(command)
+end
+
+function command_invert(command)
+    local invert = ""
+    local command_list = command:split(";")
+    for i, v in ipairs(command_list) do
+        local trimed = v:trim()
+        local subs = trimed:split("%s*")
+        local prefix = ""
+        local command = ""
+        local property = ""
+
+        for index, value in ipairs(subs) do
+            if command == "" and table.has(prefixes, value) then
+                prefix = prefix .. value .. " "
+            elseif command == "" then
+                command = value
+            elseif property == "" then
+                property = value
+            end
+        end
+
+        local value = mp.get_property(property)
+        local semi = i == #command_list and "" or ";"
+
+        if table.has(commands, command) then
+            invert = invert .. prefix .. "set " .. property .. " " .. value .. semi
+        else
+            mp.msg.warn("\"" .. trimed .. "\" doesn't support auto restore.")
+        end
+    end
+    return invert
 end
 
 local InputEvent = {}
