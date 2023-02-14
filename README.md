@@ -195,6 +195,7 @@ Because of the unexpected pause/play when switching windows, after I tested this
 ## Support for multiple configuration files
 
 You can spread out the configuration files into multiple ones like this and load them together at runtime.
+For same key, any events in new config will overwrite all events in old config.
 
 ```ini
 script-opts-add=inputevent-configs="input.conf,~~/test.conf,~~/test.json"
@@ -293,3 +294,5 @@ end
 mp.add_forced_key_binding("z", "test-z", bind)
 mp.add_forced_key_binding("x", "test-x", unbind)
 ```
+
+For same key, events will be merged with existing events.
