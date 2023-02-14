@@ -117,9 +117,9 @@ function command(command)
 end
 
 function command_split(command)
-    local separator = {";"}
-    local escape = {"\\"}
-    local quotation = {'"', "'"}
+    local separator = { ";" }
+    local escape = { "\\" }
+    local quotation = { '"', "'" }
     local quotation_stack = {}
     local result = {}
     local temp = ""
@@ -231,9 +231,9 @@ function InputEvent:emit(event)
         return
     end
 
-    local expand = mp.command_native({'expand-text', cmd})
+    local expand = mp.command_native({ 'expand-text', cmd })
     if #command_split(cmd) == #command_split(expand) then
-        cmd = mp.command_native({'expand-text', cmd})
+        cmd = mp.command_native({ 'expand-text', cmd })
     else
         mp.msg.warn("Unsafe property-expansion: " .. cmd)
     end
@@ -430,7 +430,7 @@ function bind_from_options_configs()
 end
 
 function on_options_configs_update(list)
-    if(list.configs) then
+    if (list.configs) then
         for key, value in pairs(bind_map) do
             unbind(key)
         end
