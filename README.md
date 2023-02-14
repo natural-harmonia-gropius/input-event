@@ -192,10 +192,26 @@ In the above example, if you don't write `UP ignore #@repeat`, you'll have to pr
 
 Because of the unexpected pause/play when switching windows, after I tested this behavior there is no side effect, please feedback if you encounter any problems.
 
+## Extended support for property-expansion
+
+- **Dangerous, use with caution**
+
+The original property-expansion can only work for strings, but now supports inserting in all positions of the command.
+
+This is a example of a smoother speedup.
+
+```ini
+SPACE           cycle pause                                                                 #@click
+SPACE           no-osd set speed 1; set pause no                                            #@press
+SPACE           ignore                                                                      #@release
+SPACE           no-osd add speed ${?speed==4.00:0}${!speed==4.00:0.1}; show-text ${speed}   #@repeat
+```
+
 ## Support for multiple configuration files
 
+- For same key, any events in new config will overwrite all events in old config.
+
 You can spread out the configuration files into multiple ones like this and load them together at runtime.
-For same key, any events in new config will overwrite all events in old config.
 
 ```ini
 script-opts-add=inputevent-configs="input.conf,~~/test.conf,~~/test.json"
@@ -245,22 +261,9 @@ profile-restore=copy-equal
 script-opts-add=inputevent-configs="input.conf,~~/test.json"
 ```
 
-## Extended support for property-expansion
-
-- **Dangerous, use with caution**
-
-The original property-expansion can only work for strings, but now supports inserting in all positions of the command.
-
-This is a example of a smoother speedup.
-
-```ini
-SPACE           cycle pause                                                                 #@click
-SPACE           no-osd set speed 1; set pause no                                            #@press
-SPACE           ignore                                                                      #@release
-SPACE           no-osd add speed ${?speed==4.00:0}${!speed==4.00:0.1}; show-text ${speed}   #@repeat
-```
-
 ## How to integrate with other scripts?
+
+- For same key, events will be merged with existing events.
 
 Here's an example  
 press `Z` to bind the key, press `C` to test the event execution and press `X` to unbind.
@@ -294,5 +297,3 @@ end
 mp.add_forced_key_binding("z", "test-z", bind)
 mp.add_forced_key_binding("x", "test-x", unbind)
 ```
-
-For same key, events will be merged with existing events.
