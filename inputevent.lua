@@ -442,12 +442,6 @@ mp.observe_property("input-doubleclick-time", "native", function(_, new_duration
     end
 end)
 
-mp.observe_property("focused", "native", function(_, focused)
-    local binding = bind_map["MBTN_LEFT"]
-    if not binding or not focused then return end
-    binding:ignore("click", 100)
-end)
-
 mp.register_script_message("bind", bind)
 mp.register_script_message("unbind", unbind)
 

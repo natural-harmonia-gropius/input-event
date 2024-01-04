@@ -188,10 +188,6 @@ UP              ignore                              #@repeat
 
 In the above example, if you don't write `UP ignore #@repeat`, you'll have to press frequently, which is too tiring.
 
-## Left-click will be ignored for a short time after the focus window
-
-Because of the unexpected pause/play when switching windows, after I tested this behavior there is no side effect, please feedback if you encounter any problems.
-
 ## Extended support for property-expansion
 
 - **Dangerous, use with caution**
