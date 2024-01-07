@@ -427,21 +427,21 @@ function bind_from_options_configs()
     end
 end
 
-function on_options_configs_update(list)
+function on_options_update(list)
     if (list.configs) then
         bind_from_options_configs()
     end
 end
 
-mp.observe_property("input-doubleclick-time", "native", function(_, new_duration)
+function on_input_doubleclick_time_update(_, duration)
     for _, binding in pairs(bind_map) do
-        binding:rebind({ duration = new_duration })
+        binding:rebind({ duration = duration })
     end
-end)
+end
 
 mp.register_script_message("bind", bind)
 mp.register_script_message("unbind", unbind)
-
-options.read_options(o, _, on_options_configs_update)
+mp.observe_property("input-doubleclick-time", "native", on_input_doubleclick_time_update)
+options.read_options(o, _, on_options_update)
 
 bind_from_options_configs()
