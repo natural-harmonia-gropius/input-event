@@ -238,7 +238,7 @@ function InputEvent:emit(event)
         mp.msg.warn("Unsafe property-expansion: " .. cmd)
     end
 
-    command(cmd)
+    if cmd ~= '' then command(cmd) end
 end
 
 function InputEvent:handler(event)
