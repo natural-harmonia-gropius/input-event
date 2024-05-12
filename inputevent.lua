@@ -113,6 +113,7 @@ function now()
 end
 
 function command(command)
+    if not command or command == '' then return true end
     return mp.command(command)
 end
 
@@ -238,7 +239,7 @@ function InputEvent:emit(event)
         mp.msg.warn("Unsafe property-expansion: " .. cmd)
     end
 
-    if cmd ~= '' then command(cmd) end
+    command(cmd)
 end
 
 function InputEvent:handler(event)
