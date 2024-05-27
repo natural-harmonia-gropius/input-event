@@ -353,6 +353,14 @@ function unbind(key)
         bind_map[key] = nil
     end
 end
+function is_bindable_event(event_name)
+	for _, event in ipairs(event_pattern) do
+		if event.to==event_name then
+			return true
+		end	
+	end	
+	return false
+end
 
 function bind_from_conf(conf)
     local kv = {}
@@ -365,7 +373,8 @@ function bind_from_conf(conf)
                 local events = table.filter(comments, function(i, v) return v:match("^@") end)
                 if events and #events > 0 then
                     local event = events[1]:match("^@(.*)"):trim()
-                    if event and event ~= "" then
+                    if event and is_bindable_event(event) then
+						print("event="..event)
                         if kv[key] == nil then
                             kv[key] = {}
                         end
