@@ -20,6 +20,11 @@ local event_pattern = {
     { to = "release", from = "up", length = 1 },
 }
 
+local supported_events = {}
+for _, event in ipairs(event_pattern) do
+    supported_events[event.to] = true
+end
+
 -- https://mpv.io/manual/master/#input-command-prefixes
 local prefixes = { "osd-auto", "no-osd", "osd-bar", "osd-msg", "osd-msg-bar", "raw", "expand-properties", "repeatable",
     "async", "sync" }
@@ -365,7 +370,7 @@ function bind_from_conf(conf)
                 local events = table.filter(comments, function(i, v) return v:match("^@") end)
                 if events and #events > 0 then
                     local event = events[1]:match("^@(.*)"):trim()
-                    if event and event ~= "" then
+                    if event and supported_events[event] then
                         if kv[key] == nil then
                             kv[key] = {}
                         end
