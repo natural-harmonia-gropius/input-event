@@ -359,7 +359,7 @@ function is_bindable_event(event_name)
 			return true
 		end	
 	end	
-	return false
+	return event_name=="repeat"
 end
 
 function bind_from_conf(conf)
