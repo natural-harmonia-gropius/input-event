@@ -6,6 +6,7 @@ local options = require("mp.options")
 
 local o = {
     configs = "input.conf",
+    prefix = "@"
 }
 
 local bind_map = {}
@@ -362,9 +363,9 @@ function bind_from_conf(conf)
             local key, cmd, comment = line:match("%s*([%S]+)%s+(.-)%s+#%s*(.-)%s*$")
             if comment then
                 local comments = comment:split("#")
-                local events = table.filter(comments, function(i, v) return v:match("^@") end)
+                local events = table.filter(comments, function(i, v) return v:match("^" .. o.prefix) end)
                 if events and #events > 0 then
-                    local event = events[1]:match("^@(.*)"):trim()
+                    local event = events[1]:match("^" .. o.prefix .. "(.*)"):trim()
                     if event and event ~= "" then
                         if kv[key] == nil then
                             kv[key] = {}
