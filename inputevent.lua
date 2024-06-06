@@ -203,6 +203,17 @@ function InputEvent:new(key, on)
         end
     end
 
+    for event, cmd in pairs(Instance.on) do
+        if type(cmd) == "table" then
+            for index, cmd_part in ipairs(cmd) do
+                if type(cmd_part) == "table" then
+                    Instance.on[event][index] = table.concat(cmd_part, " ")
+                end
+            end
+            Instance.on[event] = table.concat(Instance.on[event], ";")
+        end
+    end
+
     return Instance
 end
 
@@ -225,15 +236,6 @@ function InputEvent:emit(event)
 
     if event == "repeat" and self.on[event] == "ignore" then
         event = "click"
-    end
-
-    if type(self.on[event]) == "table" then
-        for index, value in ipairs(self.on[event]) do
-            if type(value) == "table" then
-                self.on[event][index] = table.concat(value, " ")
-            end
-        end
-        self.on[event] = table.concat(self.on[event], "; ")
     end
 
     local cmd = self.on[event]
