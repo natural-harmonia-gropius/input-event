@@ -98,8 +98,10 @@ function debounce(func, wait)
 
     local timer = nil
     local timer_end = function()
-        timer:kill()
-        timer = nil
+        if timer then
+            timer:kill()
+            timer = nil
+        end
         func()
     end
 
