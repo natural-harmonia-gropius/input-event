@@ -6,6 +6,7 @@ local options = require("mp.options")
 
 local o = {
     configs = "input.conf",
+    prefix = "@",
 }
 
 local bind_map = {}
@@ -393,7 +394,7 @@ function bind_from_conf(conf)
                     end
                 end
 
-                local event = comments["@"]
+                local event = comments[o.prefix]
                 if event and event ~= "" and supported_events[event] then
                     if not kv[key] then
                         kv[key] = {}
