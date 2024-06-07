@@ -58,10 +58,6 @@ function table:filter(filter)
     return nt
 end
 
-function table:remove(element)
-    return table.filter(self, function(i, v) return v ~= element end)
-end
-
 function table:join(separator)
     local result = ""
     for i, v in ipairs(self) do
@@ -282,6 +278,16 @@ function InputEvent:handler(event)
         end
     end
 
+    if event == "cancel" then
+        if #self.queue == 0 then
+            self:emit("release")
+            return
+        end
+
+        table.remove(self.queue)
+        return
+    end
+
     self.queue = table.push(self.queue, event)
     self.exec_debounced()
 end
@@ -316,7 +322,10 @@ end
 
 function InputEvent:bind()
     self.exec_debounced = debounce(function() self:exec() end, self.duration)
-    mp.add_forced_key_binding(self.key, self.key, function(e) self:handler(e.event) end, { complex = true })
+    mp.add_forced_key_binding(self.key, self.key, function(e)
+        local event = e.canceled and "cancel" or e.event
+        self:handler(event)
+    end, { complex = true })
 end
 
 function InputEvent:unbind()
