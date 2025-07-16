@@ -180,6 +180,7 @@ function command_invert(command)
         local semi = i == #command_list and "" or ";"
 
         if table.has(commands, command) then
+            value = "\"" .. value:replace("\"", "\\\"") .. "\""
             invert = invert .. prefix .. "set " .. property .. " " .. value .. semi
         else
             mp.msg.warn("\"" .. trimed .. "\" doesn't support auto restore.")
