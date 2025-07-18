@@ -120,6 +120,7 @@ end
 
 function command(command)
     if not command or command == "" then return true end
+    print("Executing command: " .. command)
     return mp.command(command)
 end
 
@@ -180,7 +181,7 @@ function command_invert(command)
         local semi = i == #command_list and "" or ";"
 
         if table.has(commands, command) then
-            value = "\"" .. value:replace("\"", "\\\"") .. "\""
+            value = "\"" .. tostring(value):replace("\"", "\\\"") .. "\""
             invert = invert .. prefix .. "set " .. property .. " " .. value .. semi
         else
             mp.msg.warn("\"" .. trimed .. "\" doesn't support auto restore.")
