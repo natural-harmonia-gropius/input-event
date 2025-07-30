@@ -35,6 +35,8 @@ local prefixes = { "osd-auto", "no-osd", "osd-bar", "osd-msg", "osd-msg-bar", "r
 -- https://mpv.io/manual/master/#list-of-input-commands
 local commands = { "set", "cycle", "add", "multiply" }
 
+local deletable = { "user-data" }
+
 function table:push(element)
     self[#self + 1] = element
     return self
@@ -180,9 +182,16 @@ function command_invert(command)
         local value = mp.get_property(property)
         local semi = i == #command_list and "" or ";"
 
-        if table.has(commands, command) then
+        local is_deletable = #table.filter(deletable, function(_, v)
+            return type(v) == "string" and property:sub(1, #v) == v
+        end) ~= 0 and value == nil
+
+        if table.has(commands, command) and not is_deletable then
+            print(value)
             value = "\"" .. tostring(value):replace("\"", "\\\"") .. "\""
-            invert = invert .. prefix .. "set " .. property .. " " .. value .. semi
+            invert = invert .. prefix .. "set" .. " " .. property .. " " .. value .. semi
+        elseif table.has(commands, command) and is_deletable then
+            invert = invert .. prefix .. "del" .. " " .. property .. semi
         else
             mp.msg.warn("\"" .. trimed .. "\" doesn't support auto restore.")
         end
