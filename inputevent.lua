@@ -188,8 +188,10 @@ function command_invert(command)
 
         if table.has(commands, command) and not is_deletable then
             print(value)
-            value = "\"" .. tostring(value):replace("\"", "\\\"") .. "\""
-            invert = invert .. prefix .. "set" .. " " .. property .. " " .. value .. semi
+            if type(value) == "string" and not (value:sub(1,1) == '"' and value:sub(-1) == '"') then
+                value = '"' .. value:replace('"', '\\"') .. '"'
+            end
+            invert = invert .. prefix .. "set" .. " " .. property .. " " .. tostring(value) .. semi
         elseif table.has(commands, command) and is_deletable then
             invert = invert .. prefix .. "del" .. " " .. property .. semi
         else
