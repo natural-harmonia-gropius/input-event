@@ -179,19 +179,27 @@ function command_invert(command)
             end
         end
 
-        local value = mp.get_property(property)
-        local semi = i == #command_list and "" or ";"
-
         local is_deletable = #table.filter(deletable, function(_, v)
             return type(v) == "string" and property:sub(1, #v) == v
         end) ~= 0 and value == nil
 
+        local value = mp.get_property_native(property)
+        if type(value) == 'number' then
+            value = tostring(value)
+        elseif type(value) == 'boolean' then
+            value = value and 'yes' or 'no'
+        elseif type(value) == 'string' then
+            value = '"' .. value:replace('"', '\\"') .. '"'
+        elseif type(value) == 'table' then
+            mp.msg.warn("the value type of \"" .. property .. "\" is table, can't auto restore.")
+            return invert
+        end
+
+        local semi = i == #command_list and "" or "; "
+
         if table.has(commands, command) and not is_deletable then
             print(value)
-            if type(value) == "string" and not (value:sub(1,1) == '"' and value:sub(-1) == '"') then
-                value = '"' .. value:replace('"', '\\"') .. '"'
-            end
-            invert = invert .. prefix .. "set" .. " " .. property .. " " .. tostring(value) .. semi
+            invert = invert .. prefix .. "set" .. " " .. property .. " " .. value .. semi
         elseif table.has(commands, command) and is_deletable then
             invert = invert .. prefix .. "del" .. " " .. property .. semi
         else
