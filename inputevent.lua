@@ -179,10 +179,6 @@ function command_invert(command)
             end
         end
 
-        local is_deletable = #table.filter(deletable, function(_, v)
-            return type(v) == "string" and property:sub(1, #v) == v
-        end) ~= 0 and value == nil
-
         local value = mp.get_property_native(property)
         if type(value) == 'number' then
             value = tostring(value)
@@ -194,6 +190,10 @@ function command_invert(command)
             mp.msg.warn("the value type of \"" .. property .. "\" is table, can't auto restore.")
             return invert
         end
+
+        local is_deletable = #table.filter(deletable, function(_, v)
+            return type(v) == "string" and property:sub(1, #v) == v
+        end) ~= 0 and value == nil
 
         local semi = i == #command_list and "" or "; "
 
