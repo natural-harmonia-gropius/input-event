@@ -35,8 +35,6 @@ local prefixes = { "osd-auto", "no-osd", "osd-bar", "osd-msg", "osd-msg-bar", "r
 -- https://mpv.io/manual/master/#list-of-input-commands
 local commands = { "set", "cycle", "add", "multiply" }
 
-local deletable = { "user-data" }
-
 function table:push(element)
     self[#self + 1] = element
     return self
@@ -179,29 +177,29 @@ function command_invert(command)
             end
         end
 
+        local use_del = false
         local value = mp.get_property_native(property)
+        local semi = i == #command_list and "" or "; "
+
         if type(value) == 'number' then
             value = tostring(value)
         elseif type(value) == 'boolean' then
             value = value and 'yes' or 'no'
         elseif type(value) == 'string' then
             value = '"' .. value:replace('"', '\\"') .. '"'
-        elseif type(value) == 'table' then
-            mp.msg.warn("the value type of \"" .. property .. "\" is table, can't auto restore.")
+        elseif type(value) == 'nil' then
+            use_del = true
+        else
+            mp.msg.warn("the value type of \"" .. property .. "\" is " .. type(value) .. ", can't auto restore.")
             return invert
         end
 
-        local is_deletable = #table.filter(deletable, function(_, v)
-            return type(v) == "string" and property:sub(1, #v) == v
-        end) ~= 0 and value == nil
-
-        local semi = i == #command_list and "" or "; "
-
-        if table.has(commands, command) and not is_deletable then
-            print(value)
-            invert = invert .. prefix .. "set" .. " " .. property .. " " .. value .. semi
-        elseif table.has(commands, command) and is_deletable then
-            invert = invert .. prefix .. "del" .. " " .. property .. semi
+        if table.has(commands, command) then
+            if not use_del then
+                invert = invert .. prefix .. "set" .. " " .. property .. " " .. value .. semi
+            else
+                invert = invert .. prefix .. "del" .. " " .. property .. semi
+            end
         else
             mp.msg.warn("\"" .. trimed .. "\" doesn't support auto restore.")
         end
