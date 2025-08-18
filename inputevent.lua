@@ -120,7 +120,6 @@ end
 
 function command(command)
     if not command or command == "" then return true end
-    print("Executing command: " .. command)
     return mp.command(command)
 end
 
