@@ -30,7 +30,7 @@ end
 
 -- https://mpv.io/manual/master/#input-command-prefixes
 local prefixes = { "osd-auto", "no-osd", "osd-bar", "osd-msg", "osd-msg-bar", "raw", "expand-properties",
-    "repeatable", "nonrepeatable", "async", "sync" }
+    "repeatable", "nonrepeatable", "nonscalable", "async", "sync" }
 
 -- https://mpv.io/manual/master/#list-of-input-commands
 local commands = { "set", "cycle", "add", "multiply" }
