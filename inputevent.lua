@@ -98,19 +98,13 @@ function debounce(func, wait)
     wait = type(wait) == "number" and wait / 1000 or 0
 
     local timer = nil
-    local timer_end = function()
-        if timer then
-            timer:kill()
-            timer = nil
-        end
-        func()
-    end
 
     return function()
-        if timer then
-            timer:kill()
+        if not timer then
+            timer = mp.add_timeout(wait, func, true)
         end
-        timer = mp.add_timeout(wait, timer_end)
+        timer:kill()
+        timer:resume()
     end
 end
 
